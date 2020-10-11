@@ -7,9 +7,33 @@
 using namespace std;
 
 typedef vector <int> Solution;
-void printSolution(const vector<Solution>& solVec);
 
+/// <summary>
+/// print the 2d vector to a stream
+/// </summary>
+/// <param name="solVec">2d vector to be printed</param>
+/// <param name="stream">target stream</param>
+void printSolution(const vector<Solution>& solVec, ostream& stream);
+/// <summary>
+/// Generates the comma position arrangements for a given k and n
+/// </summary>
+/// <param name="k">The sum of all the numbers</param>
+/// <param name="n">The count of numbers</param>
+/// <returns></returns>
+vector<Solution> partition(int k, int n);
+/// <summary>
+/// Converts the comma position vector to value vector
+/// </summary>
+/// <param name="k">The sum of values</param>
+/// <param name="comPos">The comma position vector</param>
+/// <returns></returns>
 Solution cpToSol(int k, const Solution& comPos);
+/// <summary>
+/// Convert a 2d vector of comma position to a 2d vector of values
+/// </summary>
+/// <param name="k">The sum of values</param>
+/// <param name="comPosVec">2d seperator positon vector</param>
+void cpVec2SolVec(int k, vector<Solution>& comPosVec);
 
 void printSolution(const vector<Solution>& solVec, ostream& stream)
 {
@@ -25,7 +49,6 @@ void printSolution(const vector<Solution>& solVec, ostream& stream)
         stream << "]\n";
     }
 }
-
 
 vector<Solution> partition( int k, int n )
 {
@@ -49,8 +72,7 @@ vector<Solution> partition( int k, int n )
     auto prev = partition(k, n-1);
     vector<Solution> result;
     for (auto solution : prev)
-    {
-        
+    {        
             for (int i = solution.back(); i <= k; i++)
             {
                 auto newSol = solution;
@@ -108,14 +130,3 @@ int main()
     }   
     file.close();
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
