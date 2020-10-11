@@ -3,129 +3,110 @@
 
 #include <iostream>
 #include <vector>
+#include <fstream>
 using namespace std;
 
-typedef vector < vector<int>> solution;
+typedef vector <int> Solution;
+void printSolution(const vector<Solution>& solVec);
 
-typedef vector<vector<solution>> solTable;
+Solution cpToSol(int k, const Solution& comPos);
 
-
-void initSolTable(solTable& table, int n, int k)
+void printSolution(const vector<Solution>& solVec, ostream& stream)
 {
-    table = solTable(k + 1, vector<solution>(n + 1, solution()));
-    //set (0,0)
-    table[0][0] = solution{ {} };
-    //initialize the second column (i,1)
-    for (int i = 0; i <= k; i++)
+    if (solVec.size() <= 0)
+        stream << "empty";
+    for (int k = 0; k < solVec.size(); k++)
     {
-        table[i][1] = solution{ {i} };
-    }
-    //initialize the second column (i,2)
-    for (int i = 0; i <= k; i++)
-    {
-        for (int p = i; p >= 0; p--)
+        stream << "[";
+        for (int p = 0; p < solVec[k].size(); p++)
         {
-            table[i][2].push_back(vector<int>{p, i - p});
+            stream << solVec[k][p] << ", ";
         }
+        stream << "]\n";
     }
 }
 
 
-void printSolution(const solution& sol)
+vector<Solution> partition( int k, int n )
 {
-    if (sol.size() <= 0)
-        cout << "empty";
-    for (int k = 0; k < sol.size(); k++)
+    //base case n=2
+    //get prev = (k,n-1)
+    //foreach solution in prev    //  
+    //      for i from solution.last() to k
+    //          newSol = solution
+    //          newSol.push(i)
+    //          prev.push(newSol)
+    //return prev
+    if (n == 2)
     {
-        cout << "[";
-        for (int p = 0; p < sol[k].size(); p++)
+        vector<Solution> result;
+        for (int i = 0; i <= k; i++)
         {
-            cout << sol[k][p] << ", ";
+            result.push_back(Solution{ i });
         }
-        cout << "]\n";
+        return result;
     }
-}
-
-
-void printTable(const solTable& table)
-{
-    for (int i = 0; i < table.size(); i++)
+    auto prev = partition(k, n-1);
+    vector<Solution> result;
+    for (auto solution : prev)
     {
-        for (int j = 0; j < table[0].size(); j++)
-        {
-            if (table[i][j].size() <= 0)
-                cout << "empty";
-            for (int k = 0; k < table[i][j].size(); k++)
-            {                  
-                cout << "[";
-                for (int p = 0; p < table[i][j][k].size(); p++)
-                {
-                    cout << table[i][j][k][p] << ", ";
-                }
-                cout << "], ";
-            }
-            cout << "\t";
-        }
-        cout << endl;
-    }
-}
-
-/// <summary>
-/// 
-/// </summary>
-/// <param name="n">number of nonnegative integars</param>
-/// <param name="k">sum of these integars</param>
-/// <returns></returns>
-solution& partition(solTable& table, int n, int k)
-{
-    if (table[k][n].size() > 0)
-        return table[k][n];
-    /*using dynamic programming method, taking a top-down approach
-    * take (n-1,k) solution and mutate it once 
-    *   for each combination in the solution
-    *       for each number in the combination
-    *           temp = partition(2,number)
-    *           for each solution in temp
-    *               table[k][n].push(combination with the number replaced by temp)
-    *return table[k][n]
-    *           
-    *           
-    */
-    solution prev = partition(table, n - 1, k);
-    for (auto combination : prev)
-    {
-        for(int i = 0; i < combination.size(); i++)
-        {
-            if (combination[i] == 0)
-                continue;
-            auto numSplited = partition(table, 2, combination[i]);
-            for (auto c : numSplited)
+        
+            for (int i = solution.back(); i <= k; i++)
             {
-                
-                vector<int> newComb = combination;
-                newComb.erase(newComb.begin() + i);
-                for (auto num : c)
-                {
-                    newComb.insert(newComb.begin() + i, num);
-                } 
-                table[k][n].push_back(newComb);
+                auto newSol = solution;
+                newSol.push_back(i);
+                result.push_back(newSol);
             }
-        }
+        
     }
-    return table[k][n];
+    return result;
 }
 
+void cpVec2SolVec(int k, vector<Solution>& comPosVec)
+{
+    for (int i = 0; i < comPosVec.size(); i++)
+    {
+        comPosVec[i] = cpToSol(k, comPosVec[i]);
+    }
+}
+
+Solution cpToSol(int k, const Solution& comPos)
+{
+    Solution sol;
+    int i;
+    for (i = 0; i < comPos.size(); i++)
+    {
+        if (i == 0)
+        {
+            sol.push_back(comPos[i]);
+            continue;
+        }
+        sol.push_back(comPos[i] - comPos[i - 1]);
+    }
+    sol.push_back(k - comPos[i-1]);
+    return sol;
+}
 
 
 
 int main()
 {
-    solTable table;
-    int n = 3;
-    int k = 3;
-    initSolTable(table, n, k);
-    printSolution(partition(table, n, k));
-    //printTable(table);
+    fstream file("log.txt", ios::out);    
+    while (true)
+    {
+        cout << "please enter k and n seperated by space: ";
+        file << "please enter k and n seperated by space: ";
+        int k;
+        int n;
+        cin >> k;
+        cin >> n;
+        file << k << " " << n<<endl;
+        vector<Solution> sol = partition(k, n);
+        cpVec2SolVec(k, sol);
+        printSolution(sol, cout);
+        printSolution(sol, file);
+    }   
+    file.close();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
