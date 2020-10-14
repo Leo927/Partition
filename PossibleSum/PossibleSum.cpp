@@ -50,7 +50,7 @@ void printSolution(const vector<Solution>& solVec, ostream& stream)
     }
 }
 
-vector<Solution> partition( int k, int n )
+vector<Solution> partition(int k, int n)
 {
     //base case n=2
     //get prev = (k,n-1)
@@ -65,21 +65,23 @@ vector<Solution> partition( int k, int n )
         vector<Solution> result;
         for (int i = 0; i <= k; i++)
         {
-            result.push_back(Solution{ i });
+            Solution solution;
+            solution.push_back(i);
+            result.push_back(solution);
         }
         return result;
     }
-    auto prev = partition(k, n-1);
+    vector<Solution> prev = partition(k, n - 1);
     vector<Solution> result;
-    for (auto solution : prev)
-    {        
-            for (int i = solution.back(); i <= k; i++)
-            {
-                auto newSol = solution;
-                newSol.push_back(i);
-                result.push_back(newSol);
-            }
-        
+    for (int j = 0; j < prev.size(); j++)
+    {
+        for (int i = prev[j].back(); i <= k; i++)
+        {
+            Solution newSol = prev[j];
+            newSol.push_back(i);
+            result.push_back(newSol);
+        }
+
     }
     return result;
 }
@@ -105,7 +107,7 @@ Solution cpToSol(int k, const Solution& comPos)
         }
         sol.push_back(comPos[i] - comPos[i - 1]);
     }
-    sol.push_back(k - comPos[i-1]);
+    sol.push_back(k - comPos[i - 1]);
     return sol;
 }
 
@@ -113,7 +115,7 @@ Solution cpToSol(int k, const Solution& comPos)
 
 int main()
 {
-    fstream file("log.txt", ios::out);    
+    fstream file("log.txt", ios::out);
     while (true)
     {
         cout << "please enter k and n seperated by space: ";
@@ -122,11 +124,11 @@ int main()
         int n;
         cin >> k;
         cin >> n;
-        file << k << " " << n<<endl;
+        file << k << " " << n << endl;
         vector<Solution> sol = partition(k, n);
         cpVec2SolVec(k, sol);
         printSolution(sol, cout);
         printSolution(sol, file);
-    }   
+    }
     file.close();
 }
